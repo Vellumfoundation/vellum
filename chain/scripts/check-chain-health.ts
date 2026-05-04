@@ -18,7 +18,14 @@ async function rpc<T>(method: string, params: unknown[] = []): Promise<T> {
   return body.result;
 }
 
-const chainId = await rpc<string>("eth_chainId");
-const blockNumber = await rpc<string>("eth_blockNumber");
+async function main(): Promise<void> {
+  const chainId = await rpc<string>("eth_chainId");
+  const blockNumber = await rpc<string>("eth_blockNumber");
 
-console.log(JSON.stringify({ rpcUrl, chainId, blockNumber }, null, 2));
+  console.log(JSON.stringify({ rpcUrl, chainId, blockNumber }, null, 2));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

@@ -96,6 +96,7 @@ describe("Bridge withdrawal", () => {
       rollupRpcUrl,
       withdrawalReceipt.blockNumber
     );
+    await advanceAnvilTime(l1RpcUrl, 2);
     const proveArgs = await buildProveWithdrawal(l3PublicClient, { chain: null, game, withdrawal });
     const proveHash = await proveWithdrawal(l1WalletClient, {
       account,
