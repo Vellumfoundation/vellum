@@ -261,6 +261,9 @@ for (const [scope, contracts] of [
 ] as const) {
   for (const [name, address] of Object.entries(contracts)) {
     assert(isAddress(address), `Bridge address ${scope}.${name} must be valid.`);
+    if (scope === "parentChain" && name === "l2OutputOracle" && !isZeroAddress(contracts.disputeGameFactory)) {
+      continue;
+    }
     if (production || testnet) {
       assert(!isZeroAddress(address), `Bridge address ${scope}.${name} must not be zero in ${activeEnv}.`);
     }

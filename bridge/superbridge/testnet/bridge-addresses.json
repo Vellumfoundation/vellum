@@ -1,0 +1,24 @@
+{
+  "parentChain": {
+    "name": "Base Sepolia",
+    "chainId": 84532,
+    "contracts": {
+      "portal": "0xaa6cd4e8f66353795f1db576a11dc53e43b96693",
+      "standardBridge": "0xf15415450ac69240398a73b7219e747464e2ab9b",
+      "crossDomainMessenger": "0xea278ec097cd451450ede208b1b74c589332bf5d",
+      "systemConfig": "0x3fbad88da0da7e266f67451084aa82d07b00c688",
+      "l2OutputOracle": "0x0000000000000000000000000000000000000000",
+      "disputeGameFactory": "0x468b4d368ecb3e71be4fed843282c53d51809407"
+    }
+  },
+  "l3": {
+    "name": "Vellum Testnet",
+    "chainId": 895331,
+    "contracts": {
+      "standardBridge": "0x4200000000000000000000000000000000000010",
+      "crossDomainMessenger": "0x4200000000000000000000000000000000000007",
+      "weth": "0x4200000000000000000000000000000000000006",
+      "multicall3": "0xcA11bde05977b3631167028862bE2a173976CA11"
+    }
+  }
+}

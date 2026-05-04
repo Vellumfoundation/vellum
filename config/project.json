@@ -49,10 +49,10 @@
       "chainId": 895331,
       "parentChainId": 84532,
       "parentChainName": "Base Sepolia",
-      "publicRpc": "https://testnet-rpc.vellum.example",
-      "websocketRpc": "wss://testnet-rpc.vellum.example/ws",
-      "explorer": "https://testnet-explorer.vellum.example",
-      "withdrawalChallengePeriodSeconds": 0,
+      "publicRpc": "http://104.219.250.77:8545",
+      "websocketRpc": "ws://104.219.250.77:8546",
+      "explorer": "http://104.219.250.77:4000",
+      "withdrawalChallengePeriodSeconds": 120,
       "allowPlaceholderAddresses": false
     },
     "mainnet": {

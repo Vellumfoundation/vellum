@@ -6,6 +6,7 @@ const zeroAddress = "0x0000000000000000000000000000000000000000";
 const l3StandardBridge = "0x4200000000000000000000000000000000000010";
 const l3CrossDomainMessenger = "0x4200000000000000000000000000000000000007";
 const l3Weth = "0x4200000000000000000000000000000000000006";
+const l3Multicall3 = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 type ChainConfig = {
   name: string;
@@ -155,8 +156,8 @@ function optionalAddress(source: L1Addresses, key: string): string {
   return value;
 }
 
-function envAddress(name: string): string {
-  const value = process.env[name];
+function envAddress(name: string, fallback?: string): string {
+  const value = process.env[name] || fallback;
   if (allowPlaceholders && !value) return zeroAddress;
   assert(isAddress(value), `${name} must be set to a deployed EVM address.`);
   assert(!isZeroAddress(value), `${name} must not be zero.`);
@@ -213,7 +214,7 @@ function buildChainAddresses(l1: L1Addresses): ChainAddresses {
       standardBridge: l3StandardBridge,
       crossDomainMessenger: l3CrossDomainMessenger,
       weth: l3Weth,
-      multicall3: envAddress("TESTNET_L3_MULTICALL3_ADDRESS")
+      multicall3: envAddress("TESTNET_L3_MULTICALL3_ADDRESS", l3Multicall3)
     }
   };
 }

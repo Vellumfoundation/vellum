@@ -17,11 +17,11 @@
   "blockTimeSeconds": 2,
   "bridgeType": "op-stack-canonical",
   "rpcUrls": {
-    "public": "https://testnet-rpc.vellum.example",
-    "websocket": "wss://testnet-rpc.vellum.example/ws",
+    "public": "http://104.219.250.77:8545",
+    "websocket": "ws://104.219.250.77:8546",
     "private": ""
   },
-  "explorerUrl": "https://testnet-explorer.vellum.example",
-  "statusUrl": "https://testnet-status.vellum.example",
+  "explorerUrl": "http://104.219.250.77:4000",
+  "statusUrl": "http://104.219.250.77:3001",
   "allowPlaceholderAddresses": false
 }

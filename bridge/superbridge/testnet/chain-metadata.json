@@ -1,0 +1,44 @@
+{
+  "name": "Vellum Testnet",
+  "slug": "vellum-testnet",
+  "chainId": 895331,
+  "parentChainId": 84532,
+  "parentChainName": "Base Sepolia",
+  "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "rpcUrls": {
+    "public": "http://104.219.250.77:8545",
+    "websocket": "ws://104.219.250.77:8546"
+  },
+  "explorers": [
+    {
+      "name": "Vellum Testnet Explorer",
+      "url": "http://104.219.250.77:4000",
+      "standard": "EIP3091"
+    }
+  ],
+  "bridge": {
+    "type": "op-stack-canonical",
+    "recommendedFrontend": "Superbridge",
+    "parentChainPortalAddress": "0xaa6cd4e8f66353795f1db576a11dc53e43b96693",
+    "parentChainStandardBridgeAddress": "0xf15415450ac69240398a73b7219e747464e2ab9b",
+    "parentChainCrossDomainMessengerAddress": "0xea278ec097cd451450ede208b1b74c589332bf5d",
+    "l3StandardBridgeAddress": "0x4200000000000000000000000000000000000010",
+    "l3CrossDomainMessengerAddress": "0x4200000000000000000000000000000000000007",
+    "withdrawalChallengePeriodSeconds": 120,
+    "supportsForcedWithdrawals": true,
+    "supportsEthDeposits": true,
+    "supportsErc20Deposits": true
+  },
+  "status": {
+    "homepage": "http://104.219.250.77:3001",
+    "health": "http://104.219.250.77:8545/health"
+  },
+  "brand": {
+    "icon": "https://vellum.example/icon.png",
+    "logo": "https://vellum.example/logo.svg"
+  }
+}

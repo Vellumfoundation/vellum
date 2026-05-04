@@ -1,0 +1,142 @@
+services:
+  op-geth:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    container_name: vellum-testnet-op-geth
+    volumes:
+      - ../testnet/runtime/sequencer:/workspace
+      - testnet_op_geth_data:/workspace/op-geth-data
+    working_dir: /workspace
+    env_file:
+      - ../testnet/runtime/.env
+      - ../testnet/runtime/sequencer/.env
+    ports:
+      - "${TESTNET_RPC_HTTP_PORT:-8545}:8545"
+      - "${TESTNET_RPC_WS_PORT:-8546}:8546"
+      - "8551:8551"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        if [ ! -d /workspace/op-geth-data/geth/chaindata ]; then
+          echo "Initializing Vellum testnet op-geth datadir..."
+          geth init --datadir=/workspace/op-geth-data --state.scheme=hash /workspace/genesis.json
+        fi
+        echo "Starting Vellum testnet op-geth..."
+        exec geth \
+          --datadir=/workspace/op-geth-data \
+          --networkid=$${VELLUM_CHAIN_ID} \
+          --http \
+          --http.addr=0.0.0.0 \
+          --http.port=8545 \
+          --http.api=eth,net,web3,debug,txpool \
+          --http.vhosts=* \
+          --http.corsdomain=* \
+          --ws \
+          --ws.addr=0.0.0.0 \
+          --ws.port=8546 \
+          --ws.api=eth,net,web3,debug,txpool \
+          --ws.origins=* \
+          --authrpc.addr=0.0.0.0 \
+          --authrpc.port=8551 \
+          --authrpc.jwtsecret=/workspace/jwt.txt \
+          --authrpc.vhosts=* \
+          --syncmode=full \
+          --gcmode=archive \
+          --rollup.disabletxpoolgossip=true
+    healthcheck:
+      test: ["CMD", "wget", "--post-data={\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":1}", "--header=Content-Type: application/json", "--quiet", "--tries=1", "--timeout=5", "--output-document=-", "http://localhost:8545"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  op-node:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:latest
+    container_name: vellum-testnet-op-node
+    volumes:
+      - ../testnet/runtime/sequencer:/workspace
+      - ../testnet/runtime:/runtime:ro
+    working_dir: /workspace
+    env_file:
+      - ../testnet/runtime/.env
+      - ../testnet/runtime/sequencer/.env
+    ports:
+      - "${TESTNET_ROLLUP_RPC_PORT:-8547}:8547"
+      - "9222:9222"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        exec op-node \
+          --l1=$${PARENT_RPC_URL} \
+          --l1.beacon=$${PARENT_BEACON_URL} \
+          --l1.beacon.ignore=true \
+          --l1.trustrpc=true \
+          --l2=http://op-geth:8551 \
+          --l2.jwt-secret=/workspace/jwt.txt \
+          --rollup.config=/workspace/rollup.json \
+          --rollup.l1-chain-config=/runtime/parent-chain-config.json \
+          --sequencer.enabled=true \
+          --sequencer.stopped=false \
+          --sequencer.max-safe-lag=3600 \
+          --verifier.l1-confs=2 \
+          --p2p.disable \
+          --p2p.sequencer.key=$${UNSAFE_BLOCK_SIGNER_PRIVATE_KEY} \
+          --rpc.addr=0.0.0.0 \
+          --rpc.port=8547 \
+          --rpc.enable-admin \
+          --log.level=info \
+          --log.format=json
+    depends_on:
+      op-geth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--post-data={\"jsonrpc\":\"2.0\",\"method\":\"optimism_syncStatus\",\"params\":[],\"id\":1}", "--header=Content-Type: application/json", "--quiet", "--tries=1", "--timeout=5", "--output-document=-", "http://localhost:8547"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  batcher:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:latest
+    container_name: vellum-testnet-op-batcher
+    volumes:
+      - ../testnet/runtime/batcher:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../testnet/runtime/.env
+      - ../testnet/runtime/batcher/.env
+    command: >
+      op-batcher
+      --rpc.addr=0.0.0.0
+      --rpc.port=8548
+      --rpc.enable-admin
+      --max-channel-duration=120
+      --data-availability-type=calldata
+      --resubmission-timeout=60s
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
+  proposer:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:latest
+    container_name: vellum-testnet-op-proposer
+    volumes:
+      - ../testnet/runtime/proposer:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../testnet/runtime/.env
+      - ../testnet/runtime/proposer/.env
+    command: >
+      op-proposer
+      --rpc.port=8560
+      --rollup-rpc=http://op-node:8547
+      --allow-non-finalized=true
+      --wait-node-sync=true
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
+volumes:
+  testnet_op_geth_data:

@@ -15,6 +15,7 @@ chain/bin/
 chain/devnet/
 chain/testnet/deployer/
 chain/testnet/artifacts/
+chain/testnet/runtime/
 artifacts/
 cache/
 out/

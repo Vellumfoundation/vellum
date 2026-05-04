@@ -14,6 +14,13 @@ type BridgeAddresses = {
 
 const addresses = JSON.parse(readFileSync(join(superbridgeDir, "bridge-addresses.json"), "utf8")) as BridgeAddresses;
 
+function mayBeZero(scope: string, name: string, contracts: Record<string, string>): boolean {
+  return scope === "parentChain" &&
+    name === "l2OutputOracle" &&
+    contracts.disputeGameFactory !== undefined &&
+    contracts.disputeGameFactory !== zeroAddress;
+}
+
 if (addresses.parentChain.chainId !== expectedParentChainId) {
   throw new Error(`Bridge parent chain must be ${testnet ? "Base Sepolia" : "Base mainnet"} chain ID ${expectedParentChainId}.`);
 }
@@ -30,7 +37,7 @@ for (const [scope, contracts] of [
     if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
       throw new Error(`${scope}.${name} is not a valid EVM address.`);
     }
-    if ((production || testnet) && address === zeroAddress) {
+    if ((production || testnet) && address === zeroAddress && !mayBeZero(scope, name, contracts)) {
       throw new Error(`${scope}.${name} must not be zero in ${testnet ? "testnet" : "production"}.`);
     }
   }
