@@ -39,14 +39,20 @@
 
 ## Withdrawal Timing
 
-- Withdrawal challenge period: 120 seconds
-- Proof maturity delay: TODO before external handoff
-- Dispute game finality delay: TODO before external handoff
+- Withdrawal challenge period: 604800 seconds
+- Proof maturity delay: 604800 seconds
+- Dispute game finality delay: 302400 seconds
+
+The live portal timing is the source of truth for this testnet deployment. The
+metadata value matches the longer live portal delay, not the short local smoke
+test target.
 
 ## Test Transactions
 
-- ETH deposit: TODO before external handoff
-- ETH withdrawal: TODO before external handoff
+- ETH deposit: `0xbc937a6b4c4af72729986a73e5811dacba051c1f271cca61aa5893d0745bceb4`
+- ETH withdrawal initiated: `0xd43dc858dad5a251578fea7bb9a43f659edbdc7ff1db917eba6d52a6caee7273`
+- ETH withdrawal proof: `0xcd2493c187e25bcd4195a7cf8d30ce9d26375bd559811ec9a8126cb52bd5d61d`
+- ETH withdrawal finalization: pending until proof maturity delay has elapsed
 - ERC-20 deposit: TODO before external handoff
 - ERC-20 withdrawal: TODO before external handoff
 

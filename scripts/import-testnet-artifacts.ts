@@ -329,8 +329,17 @@ function buildIntegrationNotes(
   websocketRpc: string,
   explorerUrl: string,
   statusUrl: string,
-  withdrawalChallengePeriodSeconds: number
+  withdrawalChallengePeriodSeconds: number,
+  proofMaturityDelaySeconds: number,
+  disputeGameFinalityDelaySeconds: number
 ): string {
+  const ethDepositTx = process.env.TESTNET_ETH_DEPOSIT_TX_HASH || "TODO before external handoff";
+  const ethWithdrawalInitiatedTx = process.env.TESTNET_ETH_WITHDRAWAL_INITIATED_TX_HASH || "TODO before external handoff";
+  const ethWithdrawalProofTx = process.env.TESTNET_ETH_WITHDRAWAL_PROOF_TX_HASH || "TODO before external handoff";
+  const ethWithdrawalFinalizationTx = process.env.TESTNET_ETH_WITHDRAWAL_FINALIZATION_TX_HASH || "pending until proof maturity delay has elapsed";
+  const erc20DepositTx = process.env.TESTNET_ERC20_DEPOSIT_TX_HASH || "TODO before external handoff";
+  const erc20WithdrawalTx = process.env.TESTNET_ERC20_WITHDRAWAL_TX_HASH || "TODO before external handoff";
+
   return `# Superbridge Testnet Integration Notes
 
 ## Chain
@@ -373,15 +382,21 @@ function buildIntegrationNotes(
 ## Withdrawal Timing
 
 - Withdrawal challenge period: ${withdrawalChallengePeriodSeconds} seconds
-- Proof maturity delay: TODO before external handoff
-- Dispute game finality delay: TODO before external handoff
+- Proof maturity delay: ${proofMaturityDelaySeconds} seconds
+- Dispute game finality delay: ${disputeGameFinalityDelaySeconds} seconds
+
+The live portal timing is the source of truth for this testnet deployment.
+Metadata should match the longer live portal delay, not a local smoke test
+target.
 
 ## Test Transactions
 
-- ETH deposit: TODO before external handoff
-- ETH withdrawal: TODO before external handoff
-- ERC-20 deposit: TODO before external handoff
-- ERC-20 withdrawal: TODO before external handoff
+- ETH deposit: ${ethDepositTx}
+- ETH withdrawal initiated: ${ethWithdrawalInitiatedTx}
+- ETH withdrawal proof: ${ethWithdrawalProofTx}
+- ETH withdrawal finalization: ${ethWithdrawalFinalizationTx}
+- ERC-20 deposit: ${erc20DepositTx}
+- ERC-20 withdrawal: ${erc20WithdrawalTx}
 
 ## Contacts
 
@@ -408,6 +423,8 @@ const withdrawalChallengePeriodSeconds = numberEnv(
   "TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS",
   project.environments.testnet.withdrawalChallengePeriodSeconds
 );
+const proofMaturityDelaySeconds = numberEnv("TESTNET_PROOF_MATURITY_DELAY_SECONDS", withdrawalChallengePeriodSeconds);
+const disputeGameFinalityDelaySeconds = numberEnv("TESTNET_DISPUTE_GAME_FINALITY_DELAY_SECONDS", 0);
 const chainAddresses = buildChainAddresses(l1Addresses);
 
 assert(chain.chainId > 0, "Testnet chain ID must be selected before importing artifacts.");
@@ -460,7 +477,17 @@ writeJson("chain/configs/testnet/addresses.json", chainAddresses);
 writeJson(`${bridgeOutputDir}/chain-metadata.json`, buildBridgeMetadata(nextChain, chainAddresses, publicRpc, websocketRpc, explorerUrl, statusUrl, withdrawalChallengePeriodSeconds));
 writeJson(`${bridgeOutputDir}/bridge-addresses.json`, buildBridgeAddresses(nextChain, chainAddresses));
 writeJson(`${bridgeOutputDir}/token-list.json`, buildTokenList(nextChain));
-writeText(`${bridgeOutputDir}/integration-notes.md`, buildIntegrationNotes(nextChain, chainAddresses, publicRpc, websocketRpc, explorerUrl, statusUrl, withdrawalChallengePeriodSeconds));
+writeText(`${bridgeOutputDir}/integration-notes.md`, buildIntegrationNotes(
+  nextChain,
+  chainAddresses,
+  publicRpc,
+  websocketRpc,
+  explorerUrl,
+  statusUrl,
+  withdrawalChallengePeriodSeconds,
+  proofMaturityDelaySeconds,
+  disputeGameFinalityDelaySeconds
+));
 
 for (const file of ["icon.svg", "icon.png", "logo.svg"]) {
   copyAsset(`bridge/superbridge/assets/${file}`, `${bridgeOutputDir}/assets/${file}`);

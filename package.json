@@ -30,6 +30,7 @@
     "testnet:runtime": "bash chain/scripts/prepare-testnet-runtime.sh",
     "testnet:start": "bash chain/scripts/start-testnet-node.sh",
     "testnet:remote:start": "bash chain/scripts/deploy-testnet-remote.sh",
+    "testnet:withdrawal-smoke": "tsx bridge/scripts/testnet-withdrawal-smoke.ts",
     "testnet:export-artifacts": "bash chain/scripts/export-testnet-artifacts.sh",
     "testnet:import-artifacts": "tsx scripts/import-testnet-artifacts.ts",
     "testnet:validate": "PROJECT_ENV=testnet pnpm validate:config",

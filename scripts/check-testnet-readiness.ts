@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { decodeFunctionResult, encodeFunctionData } from "viem";
 import { assert, isAddress, isPlaceholderUrl, isZeroAddress, readJson } from "./lib/common";
 
 type ChainConfig = {
@@ -63,6 +64,23 @@ type BridgeAddresses = {
 type TokenList = {
   tokens: Array<{ chainId: number; symbol: string; extensions?: Record<string, unknown> }>;
 };
+
+const portalTimingAbi = [
+  {
+    type: "function",
+    name: "proofMaturityDelaySeconds",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  },
+  {
+    type: "function",
+    name: "disputeGameFinalityDelaySeconds",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }]
+  }
+] as const;
 
 type CheckStatus = "pass" | "fail" | "warn";
 
@@ -141,6 +159,49 @@ async function rpcChainId(url: string): Promise<number> {
   assert(response.ok, `RPC HTTP status ${response.status}`);
   assert(typeof body.result === "string", body.error?.message || "RPC did not return eth_chainId");
   return Number(BigInt(body.result));
+}
+
+async function rpcEthCall(url: string, to: string, data: string): Promise<`0x${string}`> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to, data }, "latest"] }),
+    signal: AbortSignal.timeout(10000)
+  });
+  const body = await response.json() as { result?: `0x${string}`; error?: { message?: string } };
+
+  assert(response.ok, `RPC HTTP status ${response.status}`);
+  assert(typeof body.result === "string", body.error?.message || "RPC did not return eth_call result");
+  return body.result;
+}
+
+async function portalWithdrawalTiming(url: string, portalAddress: string): Promise<{
+  proofMaturityDelaySeconds: number;
+  disputeGameFinalityDelaySeconds: number;
+  expectedWithdrawalChallengePeriodSeconds: number;
+}> {
+  const proofData = encodeFunctionData({ abi: portalTimingAbi, functionName: "proofMaturityDelaySeconds" });
+  const finalityData = encodeFunctionData({ abi: portalTimingAbi, functionName: "disputeGameFinalityDelaySeconds" });
+  const [proofResult, finalityResult] = await Promise.all([
+    rpcEthCall(url, portalAddress, proofData),
+    rpcEthCall(url, portalAddress, finalityData)
+  ]);
+  const proofMaturityDelaySeconds = Number(decodeFunctionResult({
+    abi: portalTimingAbi,
+    functionName: "proofMaturityDelaySeconds",
+    data: proofResult
+  }) as bigint);
+  const disputeGameFinalityDelaySeconds = Number(decodeFunctionResult({
+    abi: portalTimingAbi,
+    functionName: "disputeGameFinalityDelaySeconds",
+    data: finalityResult
+  }) as bigint);
+
+  return {
+    proofMaturityDelaySeconds,
+    disputeGameFinalityDelaySeconds,
+    expectedWithdrawalChallengePeriodSeconds: Math.max(proofMaturityDelaySeconds, disputeGameFinalityDelaySeconds)
+  };
 }
 
 async function main(): Promise<void> {
@@ -252,6 +313,18 @@ async function main(): Promise<void> {
     if (parentRpc) {
       const parentChainId = await rpcChainId(parentRpc);
       check("live parent rpc chain id", parentChainId === expectedParentChainId, `PARENT_RPC_URL returned chain ID ${parentChainId}`);
+
+      const bridgeMetadata = maybeReadJson<BridgeMetadata>(`${bridgeConfig.metadataOutput}/chain-metadata.json`);
+      const portalAddress = String(bridgeMetadata?.bridge.parentChainPortalAddress || "");
+      if (bridgeMetadata && nonZeroAddress(portalAddress)) {
+        const timing = await portalWithdrawalTiming(parentRpc, portalAddress);
+        const metadataChallengePeriod = Number(bridgeMetadata.bridge.withdrawalChallengePeriodSeconds);
+        check(
+          "live portal withdrawal timing",
+          metadataChallengePeriod === timing.expectedWithdrawalChallengePeriodSeconds,
+          `metadata withdrawalChallengePeriodSeconds=${metadataChallengePeriod}; live proofMaturityDelaySeconds=${timing.proofMaturityDelaySeconds}; live disputeGameFinalityDelaySeconds=${timing.disputeGameFinalityDelaySeconds}`
+        );
+      }
     }
 
     if (isNonPlaceholderUrl(chain.rpcUrls.public)) {

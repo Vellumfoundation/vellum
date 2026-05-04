@@ -155,6 +155,25 @@ if ! "$OP_DEPLOYER" inspect l1 --workdir "$TESTNET_DEPLOYER_DIR" "$(chain_id_wor
 fi
 cp "$TESTNET_DEPLOYER_DIR/state.json" "$TESTNET_ARTIFACT_DIR/state.json"
 
+portal_address="$(jq -r '.OptimismPortalProxy // empty' "$TESTNET_ARTIFACT_DIR/l1-addresses.json")"
+if [ -n "$portal_address" ]; then
+  live_proof_maturity_delay="$(cast call --rpc-url "$PARENT_RPC_URL" "$portal_address" 'proofMaturityDelaySeconds()(uint256)' 2>/dev/null | awk '{print $1}' || true)"
+  live_dispute_game_finality_delay="$(cast call --rpc-url "$PARENT_RPC_URL" "$portal_address" 'disputeGameFinalityDelaySeconds()(uint256)' 2>/dev/null | awk '{print $1}' || true)"
+
+  if [[ "$live_proof_maturity_delay" =~ ^[0-9]+$ ]] && [[ "$live_dispute_game_finality_delay" =~ ^[0-9]+$ ]]; then
+    export TESTNET_PROOF_MATURITY_DELAY_SECONDS="$live_proof_maturity_delay"
+    export TESTNET_DISPUTE_GAME_FINALITY_DELAY_SECONDS="$live_dispute_game_finality_delay"
+    if [ "$live_proof_maturity_delay" -ge "$live_dispute_game_finality_delay" ]; then
+      export TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS="$live_proof_maturity_delay"
+    else
+      export TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS="$live_dispute_game_finality_delay"
+    fi
+    log_info "Using live portal withdrawal timing: proof=$TESTNET_PROOF_MATURITY_DELAY_SECONDS finality=$TESTNET_DISPUTE_GAME_FINALITY_DELAY_SECONDS challenge=$TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS seconds"
+  else
+    log_warning "Could not read live portal withdrawal timing; using configured TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS."
+  fi
+fi
+
 export TESTNET_ARTIFACT_DIR
 export TESTNET_L3_MULTICALL3_ADDRESS
 pnpm testnet:import-artifacts

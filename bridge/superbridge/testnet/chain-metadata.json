@@ -28,7 +28,7 @@
     "parentChainCrossDomainMessengerAddress": "0xea278ec097cd451450ede208b1b74c589332bf5d",
     "l3StandardBridgeAddress": "0x4200000000000000000000000000000000000010",
     "l3CrossDomainMessengerAddress": "0x4200000000000000000000000000000000000007",
-    "withdrawalChallengePeriodSeconds": 120,
+    "withdrawalChallengePeriodSeconds": 604800,
     "supportsForcedWithdrawals": true,
     "supportsEthDeposits": true,
     "supportsErc20Deposits": true
