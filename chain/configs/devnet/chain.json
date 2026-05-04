@@ -1,0 +1,27 @@
+{
+  "name": "Vellum Devnet",
+  "slug": "vellum-devnet",
+  "chainId": 90103,
+  "chainIdHex": "0x15ff7",
+  "parentChain": {
+    "name": "Local Sepolia-Shape Parent Simulator",
+    "chainId": 11155111,
+    "rpcUrlEnv": "DEVNET_L1_RPC_URL",
+    "wsUrlEnv": ""
+  },
+  "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "blockTimeSeconds": 2,
+  "bridgeType": "op-stack-canonical",
+  "rpcUrls": {
+    "public": "http://localhost:8545",
+    "websocket": "ws://localhost:8546",
+    "private": "http://localhost:9545"
+  },
+  "explorerUrl": "http://localhost:4000",
+  "statusUrl": "http://localhost:3003",
+  "allowPlaceholderAddresses": true
+}

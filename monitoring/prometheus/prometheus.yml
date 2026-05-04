@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: vellum-rpc-gateway
+    static_configs:
+      - targets: ["localhost:8080"]
+    metrics_path: /metrics
+
+  - job_name: vellum-node
+    static_configs:
+      - targets: ["localhost:9100"]

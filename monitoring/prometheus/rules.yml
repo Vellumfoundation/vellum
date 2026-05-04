@@ -1,0 +1,18 @@
+groups:
+  - name: vellum-critical
+    rules:
+      - alert: RpcGatewayDown
+        expr: vellum_rpc_gateway_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Public RPC gateway is down
+
+      - alert: RpcUpstreamsMissing
+        expr: vellum_rpc_gateway_upstreams_configured < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: RPC gateway has no configured upstreams

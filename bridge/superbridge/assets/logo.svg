@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="128" viewBox="0 0 520 128" role="img" aria-label="Vellum logo">
+  <rect width="128" height="128" rx="24" fill="#111827"/>
+  <path d="M64 18 28 39v50l36 21 36-21V39L64 18Z" fill="#2563eb"/>
+  <path d="M64 34 43 46v36l21 12 21-12V46L64 34Z" fill="#ffffff"/>
+  <path d="M64 45 52 52v24l12 7 12-7V52l-12-7Z" fill="#10b981"/>
+  <text x="160" y="78" fill="#111827" font-family="Arial, sans-serif" font-size="44" font-weight="700">Vellum</text>
+</svg>

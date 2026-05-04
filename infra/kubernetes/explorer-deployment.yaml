@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: explorer
+  namespace: vellum
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: explorer
+  template:
+    metadata:
+      labels:
+        app: explorer
+    spec:
+      containers:
+        - name: explorer
+          image: blockscout/blockscout:latest
+          ports:
+            - containerPort: 4000

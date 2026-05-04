@@ -1,0 +1,8 @@
+route:
+  receiver: default
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: "${ALERT_WEBHOOK_URL}"
+        send_resolved: true

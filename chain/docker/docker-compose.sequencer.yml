@@ -1,0 +1,7 @@
+services:
+  sequencer-geth:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    profiles: ["phase2"]
+  sequencer-node:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:latest
+    profiles: ["phase2"]

@@ -1,0 +1,75 @@
+{
+  "project": {
+    "name": "Vellum",
+    "shortName": "vellum",
+    "slug": "vellum"
+  },
+  "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "parentChain": {
+    "name": "Base",
+    "chainId": 8453,
+    "testnetName": "Base Sepolia",
+    "testnetChainId": 84532,
+    "nativeCurrency": {
+      "name": "Ether",
+      "symbol": "ETH",
+      "decimals": 18
+    }
+  },
+  "chain": {
+    "chainId": 90103,
+    "chainIdHex": "0x15ff7",
+    "blockTimeSeconds": 2,
+    "executionLayer": "OP Stack EVM",
+    "bridgeType": "op-stack-canonical"
+  },
+  "urls": {
+    "publicRpc": "https://rpc.vellum.example",
+    "websocketRpc": "wss://rpc.vellum.example/ws",
+    "explorer": "https://explorer.vellum.example",
+    "status": "https://status.vellum.example",
+    "docs": "https://github.com/Vellumfoundation/vellum-docs"
+  },
+  "environments": {
+    "devnet": {
+      "chainId": 90103,
+      "parentChainId": 84532,
+      "parentChainName": "Base Sepolia",
+      "publicRpc": "http://localhost:8545",
+      "websocketRpc": "ws://localhost:8546",
+      "explorer": "http://localhost:4000",
+      "withdrawalChallengePeriodSeconds": 60,
+      "allowPlaceholderAddresses": true
+    },
+    "testnet": {
+      "chainId": 895331,
+      "parentChainId": 84532,
+      "parentChainName": "Base Sepolia",
+      "publicRpc": "https://testnet-rpc.vellum.example",
+      "websocketRpc": "wss://testnet-rpc.vellum.example/ws",
+      "explorer": "https://testnet-explorer.vellum.example",
+      "withdrawalChallengePeriodSeconds": 0,
+      "allowPlaceholderAddresses": false
+    },
+    "mainnet": {
+      "chainId": 0,
+      "parentChainId": 8453,
+      "parentChainName": "Base",
+      "publicRpc": "https://rpc.vellum.example",
+      "websocketRpc": "wss://rpc.vellum.example/ws",
+      "explorer": "https://explorer.vellum.example",
+      "withdrawalChallengePeriodSeconds": 0,
+      "allowPlaceholderAddresses": false
+    }
+  },
+  "production": {
+    "allowZeroAddresses": false,
+    "allowPlaceholderUrls": false,
+    "allowTestKeys": false,
+    "requireAdminMultisig": true
+  }
+}

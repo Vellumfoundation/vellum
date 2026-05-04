@@ -1,0 +1,8 @@
+{
+  "environment": "devnet",
+  "chainId": 90103,
+  "parentChainId": 11155111,
+  "bridgeType": "op-stack-canonical",
+  "metadataOutput": "bridge/superbridge",
+  "allowPlaceholderAddresses": true
+}

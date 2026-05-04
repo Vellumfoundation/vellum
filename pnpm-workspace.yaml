@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "bridge/indexer"
+  - "contracts"
+  - "rpc/gateway"
+  - "sdk"
+  - "sdk/examples/deploy-hardhat"
+  - "sdk/examples/wagmi-app"

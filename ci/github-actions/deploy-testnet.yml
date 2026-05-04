@@ -1,0 +1,29 @@
+name: deploy-testnet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-testnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm testnet:readiness
+        env:
+          TESTNET_READINESS_REQUIRE_SECRETS: "1"
+          PARENT_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          PARENT_WS_URL: ${{ secrets.BASE_SEPOLIA_WS_URL }}
+          TESTNET_DEPLOYER_PRIVATE_KEY: ${{ secrets.TESTNET_DEPLOYER_PRIVATE_KEY }}
+          TESTNET_BATCHER_PRIVATE_KEY: ${{ secrets.TESTNET_BATCHER_PRIVATE_KEY }}
+          TESTNET_PROPOSER_PRIVATE_KEY: ${{ secrets.TESTNET_PROPOSER_PRIVATE_KEY }}
+          TESTNET_SEQUENCER_PRIVATE_KEY: ${{ secrets.TESTNET_SEQUENCER_PRIVATE_KEY }}
+      - run: PROJECT_ENV=testnet pnpm validate:config
+      - run: echo "Testnet deployment remains blocked until the deploy job is implemented after readiness passes."

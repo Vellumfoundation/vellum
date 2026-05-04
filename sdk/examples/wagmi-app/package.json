@@ -1,0 +1,16 @@
+{
+  "name": "@vellum/example-wagmi-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vellum/sdk": "workspace:*",
+    "viem": ">=2.0.0",
+    "wagmi": ">=2.0.0"
+  }
+}

@@ -1,0 +1,11 @@
+name: deploy-devnet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-devnet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Devnet deployment is enabled in Phase 2."

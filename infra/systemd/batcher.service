@@ -1,0 +1,11 @@
+[Unit]
+Description=Vellum op-batcher
+After=network-online.target op-node.service
+
+[Service]
+User=vellum
+ExecStart=/usr/local/bin/op-batcher
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

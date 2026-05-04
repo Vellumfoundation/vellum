@@ -1,0 +1,13 @@
+{
+  "name": "@vellum/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "forge build src",
+    "lint": "forge fmt --check",
+    "typecheck": "forge build src",
+    "test": "forge test"
+  },
+  "devDependencies": {}
+}

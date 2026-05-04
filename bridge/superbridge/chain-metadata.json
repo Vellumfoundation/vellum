@@ -1,0 +1,44 @@
+{
+  "name": "Vellum",
+  "slug": "vellum",
+  "chainId": 90103,
+  "parentChainId": 8453,
+  "parentChainName": "Base",
+  "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "rpcUrls": {
+    "public": "https://rpc.vellum.example",
+    "websocket": "wss://rpc.vellum.example/ws"
+  },
+  "explorers": [
+    {
+      "name": "Vellum Explorer",
+      "url": "https://explorer.vellum.example",
+      "standard": "EIP3091"
+    }
+  ],
+  "bridge": {
+    "type": "op-stack-canonical",
+    "recommendedFrontend": "Superbridge",
+    "parentChainPortalAddress": "0x0000000000000000000000000000000000000000",
+    "parentChainStandardBridgeAddress": "0x0000000000000000000000000000000000000000",
+    "parentChainCrossDomainMessengerAddress": "0x0000000000000000000000000000000000000000",
+    "l3StandardBridgeAddress": "0x0000000000000000000000000000000000000000",
+    "l3CrossDomainMessengerAddress": "0x0000000000000000000000000000000000000000",
+    "withdrawalChallengePeriodSeconds": 0,
+    "supportsForcedWithdrawals": true,
+    "supportsEthDeposits": true,
+    "supportsErc20Deposits": true
+  },
+  "status": {
+    "homepage": "https://status.vellum.example",
+    "health": "https://rpc.vellum.example/health"
+  },
+  "brand": {
+    "icon": "https://vellum.example/icon.png",
+    "logo": "https://vellum.example/logo.svg"
+  }
+}

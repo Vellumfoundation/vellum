@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: vellum-explorer-postgres
+    command: postgres -c 'max_connections=200' -c 'client_connection_check_interval=60000'
+    environment:
+      POSTGRES_USER: blockscout
+      POSTGRES_PASSWORD: blockscout
+      POSTGRES_DB: blockscout
+    volumes:
+      - blockscout-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blockscout -d blockscout"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    container_name: vellum-explorer-redis
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  verifier:
+    image: ghcr.io/blockscout/smart-contract-verifier:${SMART_CONTRACT_VERIFIER_DOCKER_TAG:-latest}
+    platform: linux/amd64
+    container_name: vellum-explorer-verifier
+    env_file:
+      - smart-contract-verifier.env
+    profiles: ["phase5"]
+
+  blockscout:
+    image: ghcr.io/blockscout/blockscout:${BLOCKSCOUT_DOCKER_TAG:-latest}
+    container_name: vellum-explorer-blockscout
+    command: >
+      sh -c "bin/blockscout eval 'Elixir.Explorer.ReleaseTasks.create_and_migrate()'
+      && bin/blockscout start"
+    env_file:
+      - env.example
+      - config/verifier.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      verifier:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles: ["phase5"]
+
+  frontend:
+    image: ghcr.io/blockscout/frontend:${FRONTEND_DOCKER_TAG:-latest}
+    platform: linux/amd64
+    container_name: vellum-explorer-frontend
+    env_file:
+      - frontend.env
+    depends_on:
+      - blockscout
+    profiles: ["phase5"]
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: vellum-explorer-proxy
+    depends_on:
+      - blockscout
+      - frontend
+    environment:
+      BACK_PROXY_PASS: http://blockscout:4000
+      FRONT_PROXY_PASS: http://frontend:3000
+    ports:
+      - "${EXPLORER_PORT:-4000}:80"
+    volumes:
+      - ./proxy:/etc/nginx/templates:ro
+    profiles: ["phase5"]
+
+volumes:
+  blockscout-postgres:

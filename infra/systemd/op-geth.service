@@ -1,0 +1,11 @@
+[Unit]
+Description=Vellum op-geth
+After=network-online.target
+
+[Service]
+User=vellum
+ExecStart=/usr/local/bin/op-geth
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

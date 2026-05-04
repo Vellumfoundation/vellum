@@ -1,0 +1,30 @@
+# Mainnet Launch Checklist
+
+- [ ] Final chain name chosen
+- [ ] Final chain ID selected and conflict-checked
+- [ ] Parent chain Base confirmed
+- [ ] ETH native gas confirmed
+- [ ] Genesis finalized
+- [ ] Rollup config finalized
+- [ ] Bridge contracts deployed
+- [ ] Bridge addresses verified
+- [ ] Superbridge package generated
+- [ ] RPC online
+- [ ] WebSocket online
+- [ ] Explorer online
+- [ ] Contract verification online
+- [ ] Docs online
+- [ ] Status page online
+- [ ] Monitoring online
+- [ ] Alerts tested
+- [ ] Backups tested
+- [ ] Restore tested
+- [ ] Sequencer failover tested
+- [ ] RPC failover tested
+- [ ] ETH deposit tested
+- [ ] ETH withdrawal tested
+- [ ] ERC-20 deposit tested
+- [ ] ERC-20 withdrawal tested
+- [ ] External audit complete
+- [ ] Admin multisig configured
+- [ ] Production validation passes

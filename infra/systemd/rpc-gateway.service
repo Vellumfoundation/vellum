@@ -1,0 +1,12 @@
+[Unit]
+Description=Vellum RPC Gateway
+After=network-online.target
+
+[Service]
+User=vellum
+WorkingDirectory=/opt/vellum
+ExecStart=/usr/bin/pnpm --filter @vellum/rpc-gateway dev
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

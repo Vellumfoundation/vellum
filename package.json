@@ -1,0 +1,62 @@
+{
+  "name": "vellum",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Base-settled OP Stack-style Ethereum L3 rollup using ETH as native gas.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "lint": "tsx scripts/lint.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "pnpm validate:config",
+    "build": "pnpm validate:config",
+    "validate:config": "tsx scripts/validate-all.ts",
+    "check:chain-id": "tsx scripts/check-chain-id.ts",
+    "devnet:setup": "bash chain/scripts/setup-devnet.sh",
+    "devnet:start": "bash chain/scripts/start-devnet.sh",
+    "devnet:stop": "bash chain/scripts/stop-devnet.sh",
+    "devnet:logs": "bash chain/scripts/logs-devnet.sh",
+    "devnet:status": "bash chain/scripts/status-devnet.sh",
+    "devnet:test": "bash chain/scripts/test-devnet.sh",
+    "devnet:clean": "bash chain/scripts/clean-devnet.sh",
+    "testnet:readiness": "tsx scripts/check-testnet-readiness.ts",
+    "testnet:readiness:report": "TESTNET_READINESS_ALLOW_BLOCKERS=1 tsx scripts/check-testnet-readiness.ts",
+    "testnet:chain-id": "CHECK_CHAINLIST=1 pnpm check:chain-id",
+    "testnet:export-artifacts": "bash chain/scripts/export-testnet-artifacts.sh",
+    "testnet:import-artifacts": "tsx scripts/import-testnet-artifacts.ts",
+    "testnet:validate": "PROJECT_ENV=testnet pnpm validate:config",
+    "explorer:start": "bash explorer/scripts/start-explorer.sh",
+    "explorer:stop": "bash explorer/scripts/stop-explorer.sh",
+    "explorer:health": "tsx explorer/scripts/check-explorer-health.ts",
+    "test:e2e": "tsx --test --test-concurrency=1 tests/e2e/*.spec.ts",
+    "test:e2e:sdk": "tsx --test --test-concurrency=1 tests/e2e/sdk.examples.spec.ts",
+    "sdk:typecheck": "pnpm --filter @vellum/sdk typecheck",
+    "sdk:example:viem": "tsx sdk/examples/viem-transfer.ts",
+    "sdk:example:ethers": "tsx sdk/examples/ethers-transfer.ts",
+    "sdk:example:hardhat": "pnpm --filter @vellum/example-deploy-hardhat run deploy",
+    "sdk:example:wagmi": "pnpm --filter @vellum/example-wagmi-app typecheck",
+    "bridge:package": "tsx bridge/scripts/generate-superbridge-package.ts",
+    "bridge:validate": "tsx bridge/superbridge/validation/validate-package.ts",
+    "bridge:validate:testnet": "SUPERBRIDGE_DIR=bridge/superbridge/testnet PROJECT_ENV=testnet tsx bridge/superbridge/validation/validate-package.ts",
+    "rpc:start": "pnpm --filter @vellum/rpc-gateway dev",
+    "monitor:synthetic:transfer": "tsx monitoring/scripts/synthetic-transfer-check.ts",
+    "monitor:synthetic:deploy": "tsx monitoring/scripts/synthetic-contract-deploy-check.ts",
+    "release": "tsx scripts/release.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.19.4",
+    "turbo": "^2.5.3",
+    "typescript": "^5.8.3",
+    "ws": "^8.20.0"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "viem": "^2.39.3"
+  }
+}

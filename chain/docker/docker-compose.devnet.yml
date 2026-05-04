@@ -1,0 +1,171 @@
+services:
+  op-geth:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:v1.101511.1
+    container_name: vellum-op-geth
+    volumes:
+      - ../devnet/sequencer:/workspace
+      - op_geth_data:/workspace/op-geth-data
+    working_dir: /workspace
+    env_file:
+      - ../devnet/.env
+      - ../devnet/sequencer/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "8551:8551"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        if [ ! -d /workspace/op-geth-data/geth/chaindata ]; then
+          echo "Initializing op-geth datadir..."
+          geth init --datadir=/workspace/op-geth-data --state.scheme=hash /workspace/genesis.json
+        fi
+        echo "Starting op-geth..."
+        exec geth \
+          --datadir=/workspace/op-geth-data \
+          --http \
+          --http.addr=0.0.0.0 \
+          --http.port=8545 \
+          --http.api=eth,net,web3,debug,txpool \
+          --http.vhosts=* \
+          --http.corsdomain=* \
+          --ws \
+          --ws.addr=0.0.0.0 \
+          --ws.port=8546 \
+          --ws.api=eth,net,web3,debug,txpool \
+          --ws.origins=* \
+          --authrpc.addr=0.0.0.0 \
+          --authrpc.port=8551 \
+          --authrpc.jwtsecret=/workspace/jwt.txt \
+          --authrpc.vhosts=* \
+          --syncmode=full \
+          --gcmode=archive \
+          --rollup.disabletxpoolgossip=true
+    healthcheck:
+      test: ["CMD", "wget", "--post-data={\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":1}", "--header=Content-Type: application/json", "--quiet", "--tries=1", "--timeout=5", "--output-document=-", "http://localhost:8545"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  op-node:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.13.5
+    container_name: vellum-op-node
+    volumes:
+      - ../devnet/sequencer:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../devnet/.env
+      - ../devnet/sequencer/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8547:8547"
+      - "9222:9222"
+    command: >
+      op-node
+      --l1=$${DEVNET_L1_RPC_URL_DOCKER}
+      --l1.beacon=$${DEVNET_L1_BEACON_URL_DOCKER}
+      --l1.beacon.ignore=true
+      --l1.trustrpc=true
+      --l2=http://op-geth:8551
+      --l2.jwt-secret=/workspace/jwt.txt
+      --rollup.config=/workspace/rollup.json
+      --sequencer.enabled=true
+      --sequencer.stopped=false
+      --sequencer.max-safe-lag=3600
+      --verifier.l1-confs=0
+      --p2p.disable
+      --p2p.sequencer.key=$${UNSAFE_BLOCK_SIGNER_PRIVATE_KEY}
+      --rpc.addr=0.0.0.0
+      --rpc.port=8547
+      --rpc.enable-admin
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-geth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--post-data={\"jsonrpc\":\"2.0\",\"method\":\"optimism_syncStatus\",\"params\":[],\"id\":1}", "--header=Content-Type: application/json", "--quiet", "--tries=1", "--timeout=5", "--output-document=-", "http://localhost:8547"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  batcher:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.14.0
+    container_name: vellum-op-batcher
+    volumes:
+      - ../devnet/batcher:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../devnet/.env
+      - ../devnet/batcher/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      op-batcher
+      --rpc.addr=0.0.0.0
+      --rpc.port=8548
+      --rpc.enable-admin
+      --max-channel-duration=1
+      --data-availability-type=calldata
+      --resubmission-timeout=30s
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
+  proposer:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.10.0
+    container_name: vellum-op-proposer
+    volumes:
+      - ../devnet/proposer:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../devnet/.env
+      - ../devnet/proposer/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      op-proposer
+      --rpc.port=8560
+      --rollup-rpc=http://op-node:8547
+      --allow-non-finalized=true
+      --wait-node-sync=true
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
+  challenger:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.5.1
+    container_name: vellum-op-challenger
+    profiles: ["challenge"]
+    volumes:
+      - ../devnet/challenger:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../devnet/.env
+      - ../devnet/challenger/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      op-challenger run-trace
+      --trace-type=cannon
+      --cannon-l2-genesis=/workspace/genesis.json
+      --cannon-rollup-config=/workspace/rollup.json
+      --l2-eth-rpc=http://op-geth:8545
+      --rollup-rpc=http://op-node:8547
+      --datadir=/workspace/data
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
+volumes:
+  op_geth_data:

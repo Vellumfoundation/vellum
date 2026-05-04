@@ -1,0 +1,27 @@
+{
+  "name": "Vellum",
+  "slug": "vellum",
+  "chainId": 0,
+  "chainIdHex": "0x0",
+  "parentChain": {
+    "name": "Base",
+    "chainId": 8453,
+    "rpcUrlEnv": "PARENT_RPC_URL",
+    "wsUrlEnv": "PARENT_WS_URL"
+  },
+  "nativeCurrency": {
+    "name": "Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "blockTimeSeconds": 2,
+  "bridgeType": "op-stack-canonical",
+  "rpcUrls": {
+    "public": "https://rpc.vellum.example",
+    "websocket": "wss://rpc.vellum.example/ws",
+    "private": ""
+  },
+  "explorerUrl": "https://explorer.vellum.example",
+  "statusUrl": "https://status.vellum.example",
+  "allowPlaceholderAddresses": false
+}

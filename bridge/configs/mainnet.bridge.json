@@ -1,0 +1,8 @@
+{
+  "environment": "mainnet",
+  "chainId": 0,
+  "parentChainId": 8453,
+  "bridgeType": "op-stack-canonical",
+  "metadataOutput": "bridge/superbridge",
+  "allowPlaceholderAddresses": false
+}

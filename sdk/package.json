@@ -1,0 +1,25 @@
+{
+  "name": "@vellum/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./chains": "./src/chains.ts",
+    "./viem": "./src/viem.ts",
+    "./wagmi": "./src/wagmi.ts",
+    "./bridge": "./src/bridge.ts",
+    "./tokens": "./src/tokens.ts",
+    "./addresses": "./src/addresses.ts",
+    "./rpc": "./src/rpc.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "viem": ">=2.0.0",
+    "wagmi": ">=2.0.0"
+  }
+}

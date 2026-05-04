@@ -1,0 +1,11 @@
+{
+  "name": "@vellum/docs-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node src/index.js",
+    "lint": "node src/index.js",
+    "typecheck": "node src/index.js"
+  }
+}

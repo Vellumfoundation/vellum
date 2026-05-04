@@ -1,0 +1,8 @@
+{
+  "environment": "testnet",
+  "chainId": 895331,
+  "parentChainId": 84532,
+  "bridgeType": "op-stack-canonical",
+  "metadataOutput": "bridge/superbridge/testnet",
+  "allowPlaceholderAddresses": false
+}
