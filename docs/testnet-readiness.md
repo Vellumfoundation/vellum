@@ -3,9 +3,12 @@
 The public testnet target is a Base Sepolia-settled Vellum with ETH as
 native gas.
 
-The current candidate testnet chain ID is `895331` (`0xda963`). It is reserved
-in local config only; do not submit wallet, explorer, or Chainlist metadata
-until the public RPC and explorer are live.
+The current testnet chain ID is `895331` (`0xda963`). It is deployed against
+Base Sepolia parent chain ID `84532`.
+
+Do not submit wallet, explorer, or Chainlist metadata until the public RPC,
+explorer, status page, bridge route, and reset policy are ready for public
+users.
 
 Use the non-failing report while values are still being filled in:
 
@@ -46,4 +49,5 @@ Required deployment secrets:
 
 The gate fails until all placeholder URLs, rollup addresses, bridge addresses,
 and Superbridge handoff metadata have been replaced by real Base Sepolia
-deployment artifacts.
+deployment artifacts. As of the current deployment, the strict live readiness
+gate passes for the committed testnet artifacts.

@@ -1,0 +1,16 @@
+[Unit]
+Description=Vellum Testnet Faucet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=vellum
+WorkingDirectory=/opt/vellum
+EnvironmentFile=-/etc/vellum/testnet.env
+Environment=FAUCET_PORT=8788
+ExecStart=/usr/bin/pnpm faucet:start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
