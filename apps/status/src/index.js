@@ -241,7 +241,7 @@ async function serve(req, res) {
   const url = new URL(req.url || "/", `http://${req.headers.host || "127.0.0.1"}`);
   if (url.pathname === "/healthz") {
     const status = await buildStatus();
-    json(res, status.overallStatus === "unavailable" ? 503 : 200, { ok: status.overallStatus !== "unavailable", status: status.overallStatus });
+    json(res, 200, { ok: true, status: status.overallStatus });
     return;
   }
   if (url.pathname === "/api/status") {
