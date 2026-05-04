@@ -133,6 +133,17 @@ replace_toml_bool() {
   replace_toml_number "$1" "$2"
 }
 
+remove_toml_field() {
+  local key="$1"
+  local file="$TESTNET_DEPLOYER_DIR/intent.toml"
+  local tmp_file="$file.tmp"
+
+  awk -v key="$key" '
+    $0 !~ "^[[:space:]]*" key "[[:space:]]*="
+  ' "$file" > "$tmp_file"
+  mv "$tmp_file" "$file"
+}
+
 replace_top_level_toml_field() {
   local key="$1"
   local value="$2"
@@ -142,7 +153,7 @@ replace_top_level_toml_field() {
   awk -v key="$key" -v value="$value" '
     BEGIN { inserted = 0 }
     $0 ~ "^[[:space:]]*" key "[[:space:]]*=" { next }
-    !inserted && $0 ~ "^\\[\\[" {
+    !inserted && $0 ~ "^\\[" {
       print key " = \"" value "\""
       inserted = 1
     }
@@ -165,7 +176,7 @@ replace_top_level_toml_bool() {
   awk -v key="$key" -v value="$value" '
     BEGIN { inserted = 0 }
     $0 ~ "^[[:space:]]*" key "[[:space:]]*=" { next }
-    !inserted && $0 ~ "^\\[\\[" {
+    !inserted && $0 ~ "^\\[" {
       print key " = " value
       inserted = 1
     }
@@ -175,6 +186,20 @@ replace_top_level_toml_bool() {
         print key " = " value
       }
     }
+  ' "$file" > "$tmp_file"
+  mv "$tmp_file" "$file"
+}
+
+remove_toml_table() {
+  local table="$1"
+  local file="$TESTNET_DEPLOYER_DIR/intent.toml"
+  local tmp_file="$file.tmp"
+
+  awk -v table="[$table]" '
+    $0 ~ "^\\[" {
+      skip = ($0 == table)
+    }
+    !skip { print }
   ' "$file" > "$tmp_file"
   mv "$tmp_file" "$file"
 }

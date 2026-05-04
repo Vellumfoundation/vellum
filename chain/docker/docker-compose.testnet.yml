@@ -138,5 +138,29 @@ services:
       op-node:
         condition: service_healthy
 
+  challenger:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:latest
+    container_name: vellum-testnet-op-challenger
+    volumes:
+      - ../testnet/runtime/challenger:/workspace
+    working_dir: /workspace
+    env_file:
+      - ../testnet/runtime/.env
+      - ../testnet/runtime/challenger/.env
+    command: >
+      op-challenger run-trace
+      --trace-type=permissioned
+      --l2-genesis=/workspace/genesis.json
+      --rollup-config=/workspace/rollup.json
+      --prestates-url=file:///workspace/prestates
+      --l2-eth-rpc=http://op-geth:8545
+      --rollup-rpc=http://op-node:8547
+      --datadir=/workspace/data
+      --log.level=info
+      --log.format=json
+    depends_on:
+      op-node:
+        condition: service_healthy
+
 volumes:
   testnet_op_geth_data:

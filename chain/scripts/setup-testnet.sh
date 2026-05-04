@@ -45,6 +45,11 @@ require_positive_parent_balance "deployer" "$deployer_address"
 require_positive_parent_balance "batcher" "$batcher_address"
 require_positive_parent_balance "proposer" "$proposer_address"
 
+if [ "${TESTNET_FORCE_REDEPLOY:-0}" = "1" ]; then
+  log_warning "Forcing a fresh Vellum testnet deployment state"
+  rm -rf "$TESTNET_DEPLOYER_DIR" "$TESTNET_ARTIFACT_DIR"
+fi
+
 mkdir -p "$TESTNET_DEPLOYER_DIR" "$TESTNET_ARTIFACT_DIR"
 
 if [ ! -f "$TESTNET_DEPLOYER_DIR/intent.toml" ] || [ ! -f "$TESTNET_DEPLOYER_DIR/state.json" ]; then
@@ -80,6 +85,8 @@ withdrawal_delay_seconds="${TESTNET_WITHDRAWAL_DELAY_SECONDS:-60}"
 preimage_challenge_period_seconds="${TESTNET_PREIMAGE_CHALLENGE_PERIOD_SECONDS:-60}"
 proof_maturity_delay_seconds="${TESTNET_PROOF_MATURITY_DELAY_SECONDS:-60}"
 dispute_game_finality_delay_seconds="${TESTNET_DISPUTE_GAME_FINALITY_DELAY_SECONDS:-60}"
+dispute_clock_extension_seconds="${TESTNET_DISPUTE_CLOCK_EXTENSION_SECONDS:-30}"
+dispute_max_clock_duration_seconds="${TESTNET_DISPUTE_MAX_CLOCK_DURATION_SECONDS:-180}"
 export TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS="${TESTNET_WITHDRAWAL_CHALLENGE_PERIOD_SECONDS:-$((proof_maturity_delay_seconds + dispute_game_finality_delay_seconds))}"
 
 if [ ! -f "$bootstrap_implementations_file" ]; then
@@ -96,14 +103,16 @@ if [ ! -f "$bootstrap_implementations_file" ]; then
     --withdrawal-delay-seconds "$withdrawal_delay_seconds" \
     --challenge-period-seconds "$preimage_challenge_period_seconds" \
     --proof-maturity-delay-seconds "$proof_maturity_delay_seconds" \
-    --dispute-game-finality-delay-seconds "$dispute_game_finality_delay_seconds"
+    --dispute-game-finality-delay-seconds "$dispute_game_finality_delay_seconds" \
+    --dispute-clock-extension "$dispute_clock_extension_seconds" \
+    --dispute-max-clock-duration "$dispute_max_clock_duration_seconds"
 fi
 
 opcm_address="$(jq -r '.opcmAddress // .opcmV2Address' "$bootstrap_implementations_file")"
 
 log_info "Writing testnet roles into op-deployer intent"
-replace_top_level_toml_field "opcmAddress" "$opcm_address"
-replace_top_level_toml_field "superchainConfigProxy" "$superchain_config_proxy"
+remove_toml_field "opcmAddress"
+remove_toml_field "superchainConfigProxy"
 replace_top_level_toml_bool "fundDevAccounts" "false"
 replace_toml_field "id" "$(chain_id_word)"
 replace_toml_field "baseFeeVaultRecipient" "$base_fee_vault_recipient"
@@ -130,6 +139,83 @@ replace_toml_field "batcher" "$batcher_address"
 replace_toml_field "proposer" "$proposer_address"
 replace_toml_field "challenger" "$challenger_address"
 replace_toml_field "liquidityControllerOwner" "0x0000000000000000000000000000000000000000"
+
+log_info "Seeding op-deployer state with bootstrapped short-delay implementations"
+tmp_state="$TESTNET_DEPLOYER_DIR/state.json.tmp"
+jq \
+  --arg superchainProxyAdminImpl "$superchain_proxy_admin" \
+  --arg superchainConfigProxy "$superchain_config_proxy" \
+  --arg superchainConfigImpl "$(jq -r '.superchainConfigImplAddress' "$bootstrap_superchain_file")" \
+  --arg protocolVersionsProxy "$protocol_versions_proxy" \
+  --arg protocolVersionsImpl "$(jq -r '.protocolVersionsImplAddress' "$bootstrap_superchain_file")" \
+  --arg superchainProxyAdminOwner "$admin_address" \
+  --arg superchainGuardian "$admin_address" \
+  --arg protocolVersionsOwner "$admin_address" \
+  --arg challenger "$challenger_address" \
+  --arg opcmStandardValidator "$(jq -r '.opcmStandardValidatorAddress' "$bootstrap_implementations_file")" \
+  --arg opcmUtils "$(jq -r '.opcmUtilsAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg opcmMigrator "$(jq -r '.opcmMigratorAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg opcmV2 "$opcm_address" \
+  --arg opcmContainer "$(jq -r '.opcmContainerAddress // .opcmContractsContainerAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg delayedWeth "$(jq -r '.delayedWETHImplAddress' "$bootstrap_implementations_file")" \
+  --arg optimismPortal "$(jq -r '.optimismPortalImplAddress' "$bootstrap_implementations_file")" \
+  --arg ethLockbox "$(jq -r '.ethLockboxImplAddress' "$bootstrap_implementations_file")" \
+  --arg preimageOracle "$(jq -r '.preimageOracleSingletonAddress' "$bootstrap_implementations_file")" \
+  --arg mips "$(jq -r '.mipsSingletonAddress' "$bootstrap_implementations_file")" \
+  --arg systemConfig "$(jq -r '.systemConfigImplAddress' "$bootstrap_implementations_file")" \
+  --arg l1CrossDomainMessenger "$(jq -r '.l1CrossDomainMessengerImplAddress' "$bootstrap_implementations_file")" \
+  --arg l1Erc721Bridge "$(jq -r '.l1ERC721BridgeImplAddress' "$bootstrap_implementations_file")" \
+  --arg l1StandardBridge "$(jq -r '.l1StandardBridgeImplAddress' "$bootstrap_implementations_file")" \
+  --arg optimismMintableErc20Factory "$(jq -r '.optimismMintableERC20FactoryImplAddress' "$bootstrap_implementations_file")" \
+  --arg disputeGameFactory "$(jq -r '.disputeGameFactoryImplAddress' "$bootstrap_implementations_file")" \
+  --arg anchorStateRegistry "$(jq -r '.anchorStateRegistryImplAddress' "$bootstrap_implementations_file")" \
+  --arg faultDisputeGame "$(jq -r '.faultDisputeGameImplAddress' "$bootstrap_implementations_file")" \
+  --arg permissionedDisputeGame "$(jq -r '.permissionedDisputeGameImplAddress' "$bootstrap_implementations_file")" \
+  --arg zkDisputeGame "$(jq -r '.zkDisputeGameImplAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg storageSetter "$(jq -r '.storageSetterImplAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg superFaultDisputeGame "$(jq -r '.superFaultDisputeGameImplAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  --arg superPermissionedDisputeGame "$(jq -r '.superPermissionedDisputeGameImplAddress // "0x0000000000000000000000000000000000000000"' "$bootstrap_implementations_file")" \
+  '
+    .superchainContracts = {
+      SuperchainProxyAdminImpl: $superchainProxyAdminImpl,
+      SuperchainConfigProxy: $superchainConfigProxy,
+      SuperchainConfigImpl: $superchainConfigImpl,
+      ProtocolVersionsProxy: $protocolVersionsProxy,
+      ProtocolVersionsImpl: $protocolVersionsImpl
+    }
+    | .superchainRoles = {
+      SuperchainProxyAdminOwner: $superchainProxyAdminOwner,
+      SuperchainGuardian: $superchainGuardian,
+      ProtocolVersionsOwner: $protocolVersionsOwner,
+      Challenger: $challenger
+    }
+    | .implementationsDeployment = {
+      OpcmStandardValidatorImpl: $opcmStandardValidator,
+      OpcmUtilsImpl: $opcmUtils,
+      OpcmMigratorImpl: $opcmMigrator,
+      OpcmV2Impl: $opcmV2,
+      OpcmContainerImpl: $opcmContainer,
+      DelayedWethImpl: $delayedWeth,
+      OptimismPortalImpl: $optimismPortal,
+      EthLockboxImpl: $ethLockbox,
+      PreimageOracleImpl: $preimageOracle,
+      MipsImpl: $mips,
+      SystemConfigImpl: $systemConfig,
+      L1CrossDomainMessengerImpl: $l1CrossDomainMessenger,
+      L1Erc721BridgeImpl: $l1Erc721Bridge,
+      L1StandardBridgeImpl: $l1StandardBridge,
+      OptimismMintableErc20FactoryImpl: $optimismMintableErc20Factory,
+      DisputeGameFactoryImpl: $disputeGameFactory,
+      AnchorStateRegistryImpl: $anchorStateRegistry,
+      FaultDisputeGameImpl: $faultDisputeGame,
+      PermissionedDisputeGameImpl: $permissionedDisputeGame,
+      ZkDisputeGameImpl: $zkDisputeGame,
+      StorageSetterImpl: $storageSetter,
+      SuperFaultDisputeGameImpl: $superFaultDisputeGame,
+      SuperPermissionedDisputeGameImpl: $superPermissionedDisputeGame
+    }
+  ' "$TESTNET_DEPLOYER_DIR/state.json" > "$tmp_state"
+mv "$tmp_state" "$TESTNET_DEPLOYER_DIR/state.json"
 
 if ! jq -e --arg id "$(chain_id_word)" '.opChainDeployments[]? | select(.id == $id)' "$TESTNET_DEPLOYER_DIR/state.json" >/dev/null 2>&1; then
   log_info "Deploying Vellum testnet contracts to Base Sepolia"

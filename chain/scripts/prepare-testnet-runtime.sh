@@ -15,6 +15,8 @@ require_env TESTNET_BATCHER_PRIVATE_KEY
 require_env TESTNET_PROPOSER_PRIVATE_KEY
 require_env TESTNET_SEQUENCER_PRIVATE_KEY
 
+challenger_private_key="${TESTNET_CHALLENGER_PRIVATE_KEY:-$TESTNET_PROPOSER_PRIVATE_KEY}"
+
 for file in "$CONFIG_DIR/genesis.json" "$CONFIG_DIR/rollup.json" "$CONFIG_DIR/addresses.json" "$CONFIG_DIR/chain.json"; do
   if [ ! -f "$file" ]; then
     log_error "Missing testnet config: $file"
@@ -55,10 +57,12 @@ fi
 runtime_parent_rpc_url="${TESTNET_NODE_PARENT_RPC_URL:-$submitter_parent_rpc_url}"
 runtime_parent_beacon_url="${TESTNET_NODE_PARENT_BEACON_URL:-${PARENT_BEACON_URL:-$runtime_parent_rpc_url}}"
 
-mkdir -p "$TESTNET_RUNTIME_DIR/sequencer" "$TESTNET_RUNTIME_DIR/batcher" "$TESTNET_RUNTIME_DIR/proposer"
+mkdir -p "$TESTNET_RUNTIME_DIR/sequencer" "$TESTNET_RUNTIME_DIR/batcher" "$TESTNET_RUNTIME_DIR/proposer" "$TESTNET_RUNTIME_DIR/challenger/prestates"
 cp "$CONFIG_DIR/genesis.json" "$TESTNET_RUNTIME_DIR/sequencer/genesis.json"
 cp "$CONFIG_DIR/rollup.json" "$TESTNET_RUNTIME_DIR/sequencer/rollup.json"
 cp "$CONFIG_DIR/rollup.json" "$TESTNET_RUNTIME_DIR/proposer/rollup.json"
+cp "$CONFIG_DIR/genesis.json" "$TESTNET_RUNTIME_DIR/challenger/genesis.json"
+cp "$CONFIG_DIR/rollup.json" "$TESTNET_RUNTIME_DIR/challenger/rollup.json"
 cp "$CONFIG_DIR/addresses.json" "$TESTNET_RUNTIME_DIR/addresses.json"
 
 cat > "$TESTNET_RUNTIME_DIR/parent-chain-config.json" << EOF
@@ -133,6 +137,13 @@ OP_PROPOSER_GAME_TYPE=${TESTNET_PROPOSER_GAME_TYPE:-1}
 OP_PROPOSER_PROPOSAL_INTERVAL=${TESTNET_PROPOSER_PROPOSAL_INTERVAL:-120s}
 EOF
 
-chmod 600 "$TESTNET_RUNTIME_DIR/.env" "$TESTNET_RUNTIME_DIR/parent-chain-config.json" "$TESTNET_RUNTIME_DIR/sequencer/.env" "$TESTNET_RUNTIME_DIR/batcher/.env" "$TESTNET_RUNTIME_DIR/proposer/.env" "$TESTNET_RUNTIME_DIR/sequencer/jwt.txt"
+cat > "$TESTNET_RUNTIME_DIR/challenger/.env" << EOF
+OP_CHALLENGER_L1_ETH_RPC=$submitter_parent_rpc_url
+OP_CHALLENGER_L1_BEACON=$runtime_parent_beacon_url
+OP_CHALLENGER_GAME_FACTORY_ADDRESS=$game_factory_address
+OP_CHALLENGER_PRIVATE_KEY=$(private_key_no_prefix "$challenger_private_key")
+EOF
+
+chmod 600 "$TESTNET_RUNTIME_DIR/.env" "$TESTNET_RUNTIME_DIR/parent-chain-config.json" "$TESTNET_RUNTIME_DIR/sequencer/.env" "$TESTNET_RUNTIME_DIR/batcher/.env" "$TESTNET_RUNTIME_DIR/proposer/.env" "$TESTNET_RUNTIME_DIR/challenger/.env" "$TESTNET_RUNTIME_DIR/sequencer/jwt.txt"
 
 log_success "Prepared testnet runtime files in $TESTNET_RUNTIME_DIR."

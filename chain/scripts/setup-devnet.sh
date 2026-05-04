@@ -96,7 +96,7 @@ replace_top_level_toml_field() {
   awk -v key="$key" -v value="$value" '
     BEGIN { inserted = 0 }
     $0 ~ "^[[:space:]]*" key "[[:space:]]*=" { next }
-    !inserted && $0 ~ "^\\[\\[" {
+    !inserted && $0 ~ "^\\[" {
       print key " = \"" value "\""
       inserted = 1
     }
@@ -119,7 +119,7 @@ replace_top_level_toml_bool() {
   awk -v key="$key" -v value="$value" '
     BEGIN { inserted = 0 }
     $0 ~ "^[[:space:]]*" key "[[:space:]]*=" { next }
-    !inserted && $0 ~ "^\\[\\[" {
+    !inserted && $0 ~ "^\\[" {
       print key " = " value
       inserted = 1
     }

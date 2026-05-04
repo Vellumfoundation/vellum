@@ -23,12 +23,12 @@
   "bridge": {
     "type": "op-stack-canonical",
     "recommendedFrontend": "Superbridge",
-    "parentChainPortalAddress": "0xaa6cd4e8f66353795f1db576a11dc53e43b96693",
-    "parentChainStandardBridgeAddress": "0xf15415450ac69240398a73b7219e747464e2ab9b",
-    "parentChainCrossDomainMessengerAddress": "0xea278ec097cd451450ede208b1b74c589332bf5d",
+    "parentChainPortalAddress": "0x1df1869a8958826edb13e1e937c37c98793ac0e5",
+    "parentChainStandardBridgeAddress": "0x0a1f76a5ff7b98316eedb2c7f4cb1a869e3dfde5",
+    "parentChainCrossDomainMessengerAddress": "0x9fa30b9f5673bec9899d116441b6b813d6b3e329",
     "l3StandardBridgeAddress": "0x4200000000000000000000000000000000000010",
     "l3CrossDomainMessengerAddress": "0x4200000000000000000000000000000000000007",
-    "withdrawalChallengePeriodSeconds": 604800,
+    "withdrawalChallengePeriodSeconds": 60,
     "supportsForcedWithdrawals": true,
     "supportsEthDeposits": true,
     "supportsErc20Deposits": true

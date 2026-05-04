@@ -36,6 +36,12 @@ SSHPASS="$TESTNET_SSH_PASSWORD" sshpass -e rsync -az --delete \
   "$TESTNET_RUNTIME_DIR/" \
   "$remote:$TESTNET_REMOTE_DIR/chain/testnet/runtime/"
 
+if [ "${TESTNET_REMOTE_RESET_DATA:-0}" = "1" ]; then
+  log_warning "Resetting remote Vellum testnet containers and op-geth data volume"
+  SSHPASS="$TESTNET_SSH_PASSWORD" sshpass -e ssh "${ssh_options[@]}" "$remote" \
+    "cd $remote_dir_quoted && docker compose -f chain/docker/docker-compose.testnet.yml --env-file chain/testnet/runtime/.env down --remove-orphans && docker volume rm docker_testnet_op_geth_data >/dev/null 2>&1 || true"
+fi
+
 log_info "Starting remote Vellum testnet node stack"
 SSHPASS="$TESTNET_SSH_PASSWORD" sshpass -e ssh "${ssh_options[@]}" "$remote" \
   "cd $remote_dir_quoted && docker compose -f chain/docker/docker-compose.testnet.yml --env-file chain/testnet/runtime/.env pull && docker compose -f chain/docker/docker-compose.testnet.yml --env-file chain/testnet/runtime/.env up -d --remove-orphans --force-recreate && docker compose -f chain/docker/docker-compose.testnet.yml --env-file chain/testnet/runtime/.env ps"

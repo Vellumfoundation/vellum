@@ -1,11 +1,11 @@
 {
   "parentChain": {
-    "portal": "0xaa6cd4e8f66353795f1db576a11dc53e43b96693",
-    "standardBridge": "0xf15415450ac69240398a73b7219e747464e2ab9b",
-    "crossDomainMessenger": "0xea278ec097cd451450ede208b1b74c589332bf5d",
-    "systemConfig": "0x3fbad88da0da7e266f67451084aa82d07b00c688",
+    "portal": "0x1df1869a8958826edb13e1e937c37c98793ac0e5",
+    "standardBridge": "0x0a1f76a5ff7b98316eedb2c7f4cb1a869e3dfde5",
+    "crossDomainMessenger": "0x9fa30b9f5673bec9899d116441b6b813d6b3e329",
+    "systemConfig": "0x0aa4050db8374da25eae0660b30b763cd5eaf054",
     "l2OutputOracle": "0x0000000000000000000000000000000000000000",
-    "disputeGameFactory": "0x468b4d368ecb3e71be4fed843282c53d51809407"
+    "disputeGameFactory": "0x783eeffe1f47619d5b4a35cfa95c11eb76ad2701"
   },
   "l3": {
     "standardBridge": "0x4200000000000000000000000000000000000010",
