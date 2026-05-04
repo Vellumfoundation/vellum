@@ -8,7 +8,7 @@ User=vellum
 WorkingDirectory=/opt/vellum
 EnvironmentFile=-/etc/vellum/testnet.env
 Environment=STATUS_PORT=8787
-ExecStart=/usr/bin/pnpm status:start
+ExecStart=/usr/bin/node /opt/vellum/apps/status/src/index.js
 Restart=always
 RestartSec=5
 

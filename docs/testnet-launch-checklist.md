@@ -66,7 +66,7 @@ Both commands must pass before a public Base Sepolia testnet is announced.
 - [x] Faucet implementation available with enable flag, cooldowns, daily budget, and testnet-only guard.
 - [ ] Faucet online with funding limits and funded faucet wallet.
 - [ ] Monitoring online.
-- [ ] Status page online.
+- [x] Status page online at `http://104.219.250.77:3001`.
 - [ ] Docs published.
 - [ ] Reset policy documented.
 - [ ] Known-risk banner published while reset policy is active.
