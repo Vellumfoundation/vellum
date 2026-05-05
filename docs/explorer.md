@@ -23,3 +23,27 @@ EXPLORER_URL=http://127.0.0.1:4001 VELLUM_EXPLORER_REQUIRED=true pnpm exec tsx -
 
 Port `4000` is the default Blockscout port. Use `EXPLORER_PORT` and
 `EXPLORER_URL` when another local service already owns that port.
+
+Public testnet runtime:
+
+```bash
+EXPLORER_PORT=4000 \
+EXPLORER_URL=http://104.219.250.77:4000 \
+BLOCKSCOUT_BACKEND_ENV_FILE=env.testnet \
+BLOCKSCOUT_FRONTEND_ENV_FILE=frontend.testnet.env \
+pnpm explorer:start
+```
+
+Health check:
+
+```bash
+EXPLORER_URL=http://104.219.250.77:4000 \
+VELLUM_RPC_URL=http://104.219.250.77:8545 \
+pnpm explorer:health
+```
+
+Current public testnet explorer:
+
+```text
+http://104.219.250.77:4000
+```

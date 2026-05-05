@@ -49,6 +49,8 @@
     "bridge:validate:testnet": "SUPERBRIDGE_DIR=bridge/superbridge/testnet PROJECT_ENV=testnet tsx bridge/superbridge/validation/validate-package.ts",
     "status:start": "pnpm --filter @vellum/status start",
     "status:check": "pnpm --filter @vellum/status build",
+    "docs:start": "pnpm --filter @vellum/docs-site start",
+    "docs:check": "pnpm --filter @vellum/docs-site build",
     "faucet:start": "pnpm --filter @vellum/faucet start",
     "faucet:check": "pnpm --filter @vellum/faucet build",
     "rpc:start": "pnpm --filter @vellum/rpc-gateway dev",

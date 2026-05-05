@@ -61,12 +61,12 @@ Both commands must pass before a public Base Sepolia testnet is announced.
 
 - [x] Public RPC online.
 - [x] WebSocket RPC online.
-- [ ] Explorer online with contract verification enabled.
+- [x] Explorer online at `http://104.219.250.77:4000` with contract verification enabled.
 - [x] Status service implementation available with RPC, explorer, bridge, faucet, and docs checks.
 - [x] Faucet implementation available with enable flag, cooldowns, daily budget, and testnet-only guard.
-- [ ] Faucet online with funding limits and funded faucet wallet.
+- [x] Faucet online at `http://104.219.250.77:8788` with funding limits and a funded faucet wallet.
 - [ ] Monitoring online.
 - [x] Status page online at `http://104.219.250.77:3001`.
-- [ ] Docs published.
+- [x] Docs published at `http://104.219.250.77:3003`.
 - [ ] Reset policy documented.
 - [ ] Known-risk banner published while reset policy is active.

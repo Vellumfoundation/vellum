@@ -14,6 +14,19 @@ Use `EXPLORER_PORT=4000` on machines where port `4000` is free. The start
 script uses Docker Compose when available and falls back to plain Docker when
 the Docker Compose plugin is not installed.
 
+Start the public testnet explorer against the deployed Vellum RPC:
+
+```bash
+EXPLORER_PORT=4000 \
+EXPLORER_URL=http://104.219.250.77:4000 \
+BLOCKSCOUT_BACKEND_ENV_FILE=env.testnet \
+BLOCKSCOUT_FRONTEND_ENV_FILE=frontend.testnet.env \
+pnpm explorer:start
+```
+
+The testnet Blockscout env files target chain ID `895331`, ETH native gas, and
+the host RPC ports `8545` and `8546`.
+
 The root URL serves the Blockscout frontend. API requests under `/api` are
 proxied to the Blockscout backend on the same host and port.
 

@@ -10,7 +10,10 @@ cd "$ROOT_DIR"
 
 if has_docker_compose; then
   log_info "Starting Blockscout with docker compose on $EXPLORER_URL"
-  EXPLORER_PORT="$EXPLORER_PORT" docker compose -f "$COMPOSE_FILE" --profile phase5 up -d --wait
+  EXPLORER_PORT="$EXPLORER_PORT" \
+    BLOCKSCOUT_BACKEND_ENV_FILE="${BLOCKSCOUT_BACKEND_ENV_FILE:-env.example}" \
+    BLOCKSCOUT_FRONTEND_ENV_FILE="${BLOCKSCOUT_FRONTEND_ENV_FILE:-frontend.env}" \
+    docker compose -f "$COMPOSE_FILE" --profile phase5 up -d --wait
 else
   log_warn "docker compose is unavailable; starting Blockscout with plain docker"
   ensure_network
@@ -40,7 +43,7 @@ else
   restart_container "$BLOCKSCOUT_CONTAINER" \
     --network "$NETWORK" \
     --add-host host.docker.internal:host-gateway \
-    --env-file "$BLOCKSCOUT_DIR/env.example" \
+    --env-file "$BLOCKSCOUT_DIR/${BLOCKSCOUT_BACKEND_ENV_FILE:-env.example}" \
     --env-file "$BLOCKSCOUT_DIR/config/verifier.env" \
     -e DATABASE_URL=postgresql://blockscout:blockscout@"$POSTGRES_CONTAINER":5432/blockscout?ssl=false \
     -e ACCOUNT_DATABASE_URL=postgresql://blockscout:blockscout@"$POSTGRES_CONTAINER":5432/blockscout?ssl=false \
@@ -53,7 +56,7 @@ else
 
   restart_container "$FRONTEND_CONTAINER" \
     --network "$NETWORK" \
-    --env-file "$BLOCKSCOUT_DIR/frontend.env" \
+    --env-file "$BLOCKSCOUT_DIR/${BLOCKSCOUT_FRONTEND_ENV_FILE:-frontend.env}" \
     -e NEXT_PUBLIC_API_HOST=127.0.0.1:"$EXPLORER_PORT" \
     -e NEXT_PUBLIC_APP_HOST=127.0.0.1:"$EXPLORER_PORT" \
     ghcr.io/blockscout/frontend:${FRONTEND_DOCKER_TAG:-latest} >/dev/null

@@ -18,7 +18,7 @@ pnpm faucet:start
 Open:
 
 ```text
-http://127.0.0.1:8788
+http://104.219.250.77:8788
 ```
 
 Health and status endpoints:
@@ -51,6 +51,16 @@ curl -X POST http://127.0.0.1:8788/api/request \
 
 Fund the faucet wallet with Vellum testnet ETH before enabling public access.
 The faucet sends native ETH on Vellum, not a custom gas token.
+
+Current public testnet faucet settings:
+
+| Field | Value |
+|---|---|
+| URL | `http://104.219.250.77:8788` |
+| Amount per request | `0.001 ETH` |
+| Daily budget | `0.01 ETH` |
+| Wallet cooldown | `86400 seconds` |
+| IP cooldown | `3600 seconds` |
 
 Systemd and nginx templates are provided for server deployment:
 
